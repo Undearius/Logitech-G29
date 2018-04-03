@@ -1,0 +1,41 @@
+#!/bin/bash
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -s|--switch)
+    switch=1
+    shift
+    ;;
+    [0-9]*)
+    if [ "$1" -ge 1 -a "$1" -le 900 ]; then
+        range="$1"
+    else 
+        echo "ERROR: Not a valid range (1-900)"
+    fi
+    shift
+    ;;
+    g2*|G2*)
+    mode="$1"
+    shift
+    ;;
+esac
+done
+
+usboutput=$(lsusb -d 046d:c29b)
+if [[ -z  $usboutput  ]]
+then
+    usboutput=$(lsusb -d 046d:c24f)
+    if [[  -z  $usboutput ]]; then
+        echo "Please connect the G29 wheel with your computer and try again!"
+        exit 1
+    fi
+#    path=`find /sys/devices -name alternate_modes`
+#    echo $mode > ${path}
+fi
+                                                                                                                                                                                   
+if [[ $range ]]; then                                                                                                                                                              
+    path=`find -L /sys/bus/hid/drivers/logitech -ignore_readdir_race -maxdepth 2 -name range 2> /dev/null`                                                                         
+    echo $range > ${path}                                                                                                                                                          
+fi   
